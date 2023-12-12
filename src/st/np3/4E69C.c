@@ -162,7 +162,10 @@ void EntityHammerWeapon(Entity* self) {
     }
 }
 
-INCLUDE_ASM("asm/us/st/np3/nonmatchings/4E69C", func_801CF778);
+void func_801CF778(void) {
+    g_CurrentEntity[15].ext.GH_Props.unk9C = g_CurrentEntity[15].ext.GH_Props.unkA0->ext.GH_Props.unk9C + 0x300;
+}
+
 
 INCLUDE_ASM("asm/us/st/np3/nonmatchings/4E69C", func_801CF7A0);
 
