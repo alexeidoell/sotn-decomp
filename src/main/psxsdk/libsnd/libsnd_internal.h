@@ -55,9 +55,7 @@ extern u8 svm_vab_used[];
 s16 SsVabOpenHeadWithMode(u8* addr, s16 vabid, s32 arg2, u32 sbaddr);
 
 void _spu_setInTransfer(s32);
-extern u8 svm_vab_used[];
 
-extern u8 svm_vab_used[];
 void SpuFree(s32);
 extern s32 D_80098810[];
 extern u16 _svm_vab_count;
@@ -91,7 +89,6 @@ s32 vmNoiseOn2(u8, u16, u16, u16, u16);
 extern s8 D_800978D7;
 extern s16 D_800978E2;
 extern u8 spuVmMaxVoice;
-void SpuVmKeyOff(s32, s16, s16, u16);
 void SeAutoVol(s16, s16, s16, s16);
 void SeAutoPan(s16, s16, s16, s16);
 
@@ -124,7 +121,7 @@ struct SeqStruct {
     s16 unk40;
     s16 unk42;
     s16 unk44;
-    u8 pad9[1];
+    s16 unk46;
     s16 unk48;
     u8 pad8[2];
     s16 unk4c;
@@ -132,7 +129,7 @@ struct SeqStruct {
     u8 pad10[1];
     s16 unk70;
     s16 unk72;
-    s16 unk74;
+    u16 unk74;
     s16 unk76;
     s16 unk78;
     s16 unk7A;
@@ -147,7 +144,8 @@ struct SeqStruct {
     s32 unk9C;
     s32 unkA0;
     s32 unkA4;
-    u8 padA6[2];
+    s16 padA6;
+    s16 padaa;
 };
 
 extern struct SeqStruct* _ss_score[32];
@@ -174,5 +172,22 @@ extern void SpuSetCommonAttr(SpuCommonAttr* attr);
 
 extern s16 _snd_seq_s_max;
 extern s16 _snd_seq_t_max;
+
+typedef struct ProgAtr { /* Program Headdings */
+
+    unsigned char tones;      /* # of tones */
+    unsigned char mvol;       /* program volume */
+    unsigned char prior;      /* program priority */
+    unsigned char mode;       /* program mode */
+    unsigned char mpan;       /* program pan */
+    char reserved0;           /* system reserved */
+    short attr;               /* program attribute */
+    unsigned long reserved1;  // "fake" program index (skips empties)
+    unsigned short reserved2; // even vag spu ptr
+    unsigned short reserved3; // odd vag spu ptr
+} ProgAtr;                    /* 16 byte */
+
+extern ProgAtr* D_8006C3B4;
+extern u8 svm_vab_used[];
 
 #endif

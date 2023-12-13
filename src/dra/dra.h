@@ -18,6 +18,14 @@
 #define SEQ_TABLE_S_MAX 0x10
 #define SEQ_TABLE_T_MAX 1
 
+#define RED_MASK 0x1F
+#define GREEN_MASK 0x3E0
+#define BLUE_MASK 0x7C00
+
+#define GET_RED(x) ((x)&RED_MASK)
+#define GET_GREEN(x) ((x)&GREEN_MASK)
+#define GET_BLUE(x) ((x)&BLUE_MASK)
+
 typedef enum {
     DEBUG_NORMAL,
     DEBUG_TEXTURE_VIEWER,
@@ -364,21 +372,7 @@ extern u16 g_ButtonMask[];
 extern u8 g_StageSelectOrder[];
 extern u16 D_800A04CC[];
 extern u32 D_800A04F8;
-extern s32 g_UnkMemcardPort[];
-extern u16 g_saveIconPalette[0x10][0x10];
-extern u8* g_saveIconTexture[0x10];
-extern s16 D_800A21B8[0x20];
 extern s32 D_800A2438;
-extern u8 D_800A243C[];
-extern RoomBossTeleport D_800A297C[];
-extern u8 D_800A2BC0[];
-extern u8 D_800A2D7C[3];
-extern u8 D_800A2D80[0x10];
-extern u8 c_chPlaystationButtons[];
-extern u8 c_chShoulderButtons[];
-extern RECT D_800A2D90;
-extern Unkstruct_800A2D98 D_800A2D98[];
-extern MenuContextInit MenuContextData[];
 extern u8 D_800A2EE8[];
 extern u8 D_800A2EED;
 extern u8 D_800A2EF8[];
@@ -397,7 +391,6 @@ extern s32 D_800A2FBC[];
 extern s32 D_800A2FC0[];
 
 extern RoomTeleport D_800A245C[];
-extern s32 D_800A2464[]; // D_800A245C[0].stageId
 extern u32 D_800A2D24;
 extern const char* c_strALUCARD[];
 extern const char** c_strSTR;
@@ -533,8 +526,8 @@ extern const char D_800DB524[];
 extern const char a0104x04x;
 extern const char a2304x04x;
 extern const char aBlue;
-extern u8 g_GfxEquipIcon[][16 * 16 / 2];
-extern s16 g_PalEquipIcon[];
+extern u8 g_GfxEquipIcon[32][16 * 16 / 2];
+extern s16 g_PalEquipIcon[32];
 extern const char aDr03x;
 extern const char aEff03x;
 extern const char aEnv03x;
@@ -585,10 +578,10 @@ extern u8 g_PadsRepeatTimer[BUTTON_COUNT * PAD_COUNT];
 extern s32 D_80137428[];
 extern s32 g_MemcardRetryCount;
 extern s32 g_MemcardFd;
-extern u16 D_80137478[];
-extern u16 D_801374B8[];
-extern u16 D_801374F8[];
-extern u16 D_80137538[];
+extern u16 D_80137478[0x20];
+extern u16 D_801374B8[0x20];
+extern u16 D_801374F8[0x20];
+extern u16 D_80137538[0x20];
 extern u8* g_DecSrcPtr;
 extern u8* g_DecDstPtr;
 extern s32 g_DecReadNibbleFlag;
@@ -613,7 +606,7 @@ extern RoomLoadDefHolder D_801375BC;
 extern s32 D_801375C0;
 extern s32 D_801375C4;
 extern s32 D_801375C8;
-extern s32 D_801375CC;
+extern ItemTypes D_801375CC;
 extern s32 D_801375D0;
 extern s32 D_801375D4;
 extern s32* D_801375D8;

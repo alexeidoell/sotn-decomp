@@ -91,8 +91,87 @@ s16 func_80156DE4(void) {
     }
     return 0;
 }
+// Duplicate of DRA func_80109594
+void func_80156F40(s16 arg0) {
+    Entity* e;
+    s32 radius;
+    s32 intensity;
+    s32 primIndex;
+    Primitive* prim;
+    s32 i;
+    s32 val;
+    s32 memset_len;
+    s32* memset_ptr;
+    SpriteParts** spriteptr;
+    Entity* playerPtr = &PLAYER;
 
-INCLUDE_ASM("asm/us/ric/nonmatchings/1AC60", func_80156F40);
+    DestroyEntity(&PLAYER);
+    PLAYER.posX.val = FIX(32);
+    PLAYER.posY.val = FIX(32);
+    PLAYER.animSet = ANIMSET_OVL(0x10);
+    PLAYER.palette = 0x8120;
+    PLAYER.rotX = PLAYER.rotY = 0x100;
+    PLAYER.facingLeft = 0;
+    PLAYER.rotPivotY = 0x18;
+    PLAYER.zPriority = g_unkGraphicsStruct.g_zEntityCenter.S16.unk0;
+    memset_len = sizeof(PlayerState) / sizeof(s32);
+    memset_ptr = &g_Player;
+    for (i = 0; i < memset_len; i++) {
+        *memset_ptr++ = 0;
+    }
+    g_Player.unk04 = 1;
+    g_Player.pl_vram_flag = 1;
+    func_8015CD98(0);
+    PLAYER.unk4C = D_80155480;
+    g_Player.unk5C = arg0;
+    if (g_StageId == STAGE_ST0) {
+        D_80154570 = 1;
+    } else {
+        D_80154570 = 0;
+    }
+    D_80097D37 = 0;
+    func_801587C0();
+    for (i = 0; i < 0x20; i++) {
+        radius = (rand() & 0x3FF) + 0x100;
+        intensity = (rand() & 0xFF) + 0x100;
+        val = rcos(radius) * 0x10;
+        D_80175958[i] = +((val * intensity) >> 8);
+        val = rsin(radius) * 0x10;
+        D_801759D8[i] = -((val * intensity) >> 7);
+    }
+    spriteptr = g_api.o.spriteBanks;
+    spriteptr += 0x10;
+    *spriteptr++ = D_801530AC;
+    *spriteptr++ = D_80153AA0;
+    *spriteptr++ = D_80153D24;
+    *spriteptr++ = D_801541A8;
+    for (e = &g_Entities[1], i = 0; i < 3; i++, e++) {
+        DestroyEntity(e);
+        e->animSet = ANIMSET_OVL(0x10);
+        e->unk5A = i + 1;
+        e->palette = 0x8120;
+        e->flags = FLAG_UNK_20000 | FLAG_UNK_08000000;
+    }
+    primIndex = g_api.AllocPrimitives(PRIM_TILE, 6);
+
+    g_Entities[1].primIndex = primIndex;
+    g_Entities[1].flags |= FLAG_HAS_PRIMS;
+    for (prim = &g_PrimBuf[primIndex]; prim != NULL; prim = prim->next) {
+        prim->blendMode = 0x102 | BLEND_VISIBLE;
+    }
+    if (D_80097C98 == 6) {
+        CreateEntFactoryFromEntity(playerPtr, 0x1004D, 0);
+        func_8015CC70(1);
+    }
+    if (D_80097C98 == 4) {
+        CreateEntFactoryFromEntity(playerPtr, 0x3004D, 0);
+        func_8015CC70(3);
+    }
+    if (D_80097C98 == 5) {
+        CreateEntFactoryFromEntity(playerPtr, 0x5004D, 0);
+        func_8015CC70(5);
+    }
+}
 
 INCLUDE_ASM("asm/us/ric/nonmatchings/1AC60", func_801572A8);
 
@@ -194,7 +273,7 @@ void func_80158B04(s32 arg0) {
 
     PLAYER.posY.i.hi -= 16;
     PLAYER.posX.i.hi = var_s0 + PLAYER.posX.i.hi;
-    func_801606BC(g_CurrentEntity, 0x10004, 0);
+    CreateEntFactoryFromEntity(g_CurrentEntity, 0x10004, 0);
     PLAYER.posY.i.hi += 16;
     PLAYER.posX.i.hi = PLAYER.posX.i.hi - var_s0;
 
@@ -223,7 +302,7 @@ void func_80158BFC(void) {
             }
             PLAYER.posX.i.hi = var_s0 + PLAYER.posX.i.hi;
             PLAYER.posY.i.hi -= 16;
-            func_801606BC(g_CurrentEntity, 0x80004, 0);
+            CreateEntFactoryFromEntity(g_CurrentEntity, 0x80004, 0);
             D_8015459C = 0x60;
             PLAYER.posY.i.hi += 16;
             PLAYER.posX.i.hi = PLAYER.posX.i.hi - var_s0;
@@ -272,7 +351,7 @@ void func_80158BFC(void) {
                     g_Player.unk46 = 2;
                     PLAYER.step_s++;
                     func_8015C920(&D_80155730);
-                    func_801606BC(g_CurrentEntity, 0x11, 0);
+                    CreateEntFactoryFromEntity(g_CurrentEntity, 0x11, 0);
                     break;
                 }
                 g_Player.unk46 = 0;
@@ -331,7 +410,7 @@ void func_80158FA4(void) {
             if (g_Player.D_80072F16 == 0) {
                 if (!(g_Player.pl_vram_flag & 0xC)) {
                     func_8015C920(&D_8015539C);
-                    func_801606BC(g_CurrentEntity, 0x0, 0);
+                    CreateEntFactoryFromEntity(g_CurrentEntity, 0x0, 0);
                 }
             } else {
                 PLAYER.velocityX = 0;
@@ -342,7 +421,130 @@ void func_80158FA4(void) {
     }
 }
 
-INCLUDE_ASM("asm/us/ric/nonmatchings/1AC60", func_801590A0);
+void func_801590A0(void) {
+    if ((D_80154570 == 0) && (PLAYER.velocityY < FIX(-1)) &&
+        !(g_Player.unk44 & 0x40) && !(g_Player.padPressed & PAD_CROSS)) {
+        PLAYER.velocityY = FIX(-1);
+    }
+    if ((g_Player.pl_vram_flag & 2) && (PLAYER.velocityY < FIX(-1))) {
+        PLAYER.velocityY = FIX(-0.25);
+        g_Player.unk44 |= 0x20;
+    }
+    if (func_8015DBB0(0x11009)) {
+        return;
+    }
+    switch (PLAYER.step_s) {
+    // Need at least one fake case to make the switch match
+    case 1:
+        return;
+    case 0:
+        func_8015C93C(0x1000);
+        if (func_8015C9CC()) {
+            if (g_Player.unk44 & 0x10) {
+                SetSpeedX(FIX(2.25));
+            } else {
+                SetSpeedX(FIX(1.25));
+            }
+            g_Player.unk44 &= ~4;
+        } else {
+            g_Player.unk44 &= ~0x10;
+            if ((PLAYER.animFrameIdx < 2) &&
+                ((LOW(g_Player.unk44) & 0xC) == 4) &&
+                (g_Player.padTapped & PAD_CROSS)) {
+                func_8015C920(D_8015555C);
+                SetSpeedX(FIX(-1.5));
+                PLAYER.velocityY = FIX(-2.625);
+                if (g_Player.unk72 != 0) {
+                    PLAYER.velocityY = 0;
+                }
+                PLAYER.step_s = 2;
+                g_Player.unk44 |= 0xA;
+                g_Player.unk44 &= ~4;
+            }
+        }
+        return;
+    case 0x40:
+        func_8015CB58(1, 1);
+        if (PLAYER.animFrameIdx < 3) {
+            if (func_8015C9CC() != 0) {
+                if (g_Player.unk44 & 0x10) {
+                    SetSpeedX(FIX(2.25));
+                } else {
+                    SetSpeedX(FIX(1.25));
+                }
+                g_Player.unk44 &= ~4;
+            } else {
+                g_Player.unk44 &= ~0x10;
+            }
+        } else {
+            if (((g_Player.padPressed & PAD_RIGHT) && !PLAYER.facingLeft) ||
+                ((g_Player.padPressed & PAD_LEFT) && PLAYER.facingLeft)) {
+                if (g_Player.unk44 & 0x10) {
+                    SetSpeedX(FIX(2.25));
+                } else {
+                    SetSpeedX(FIX(1.25));
+                }
+                SetSpeedX(FIX(1.25));
+                g_Player.unk44 &= ~4;
+            } else {
+                g_Player.unk44 &= ~0x10;
+            }
+        }
+        if (PLAYER.animFrameDuration < 0) {
+            if (g_Player.padPressed & PAD_SQUARE) {
+                g_Player.unk46 = 2;
+                PLAYER.step_s += 1;
+                func_8015C920(D_80155740);
+                CreateEntFactoryFromEntity(g_CurrentEntity, 0x11U, 0);
+            } else {
+                g_Player.unk46 = 0;
+                PLAYER.step_s = 0;
+                func_8015C920(D_80155528);
+            }
+        }
+        return;
+    case 0x41:
+        func_8015CB58(1, 1);
+        if (!(g_Player.padPressed & PAD_SQUARE)) {
+            g_Player.unk46 = 0;
+            PLAYER.step_s = 0;
+            func_8015C920(D_80155528);
+        }
+        return;
+    case 0x42:
+        func_8015CB58(1, 1);
+        if (PLAYER.animFrameIdx < 3) {
+            if (func_8015C9CC() != 0) {
+                if (g_Player.unk44 & 0x10) {
+                    SetSpeedX(FIX(2.25));
+                } else {
+                    SetSpeedX(FIX(1.25));
+                }
+                g_Player.unk44 &= ~4;
+            } else {
+                g_Player.unk44 &= ~0x10;
+            }
+        } else {
+            if (((g_Player.padPressed & PAD_RIGHT) && !PLAYER.facingLeft) ||
+                ((g_Player.padPressed & PAD_LEFT) && PLAYER.facingLeft)) {
+                if (g_Player.unk44 & 0x10) {
+                    SetSpeedX(FIX(2.25));
+                } else {
+                    SetSpeedX(FIX(1.25));
+                }
+                SetSpeedX(FIX(1.25));
+                g_Player.unk44 &= ~4;
+            } else {
+                g_Player.unk44 &= ~0x10;
+            }
+        }
+        if (PLAYER.animFrameDuration < 0) {
+            g_Player.unk46 = 0;
+            PLAYER.step_s = 0;
+            func_8015C920(D_80155528);
+        }
+    }
+}
 
 void func_801595D8(void) {
     if (func_8015DBB0(0x9009)) {
@@ -435,21 +637,21 @@ void func_8015AFE0(void) {
 
 void func_8015B098(void) {
     if ((PLAYER.animCurFrame == 0xB5) && (PLAYER.animFrameDuration == 1)) {
-        func_801606BC(g_CurrentEntity, 0x23, 0);
+        CreateEntFactoryFromEntity(g_CurrentEntity, 0x23, 0);
         g_api.PlaySfx(NA_SE_UNK_62F);
     }
 
     if (PLAYER.animFrameDuration < 0) {
         func_8015CD98(0);
         g_Player.unk46 = 0;
-        func_801606BC(g_CurrentEntity, 0x450021, 0);
+        CreateEntFactoryFromEntity(g_CurrentEntity, 0x450021, 0);
         g_Player.D_80072F00 = 0x800;
     }
 
     if (!(g_Player.pl_vram_flag & 1)) {
         func_8015CF08();
         g_Player.unk46 = 0;
-        func_801606BC(g_CurrentEntity, 0x450021, 0);
+        CreateEntFactoryFromEntity(g_CurrentEntity, 0x450021, 0);
         g_Player.D_80072F00 = 0x800;
     }
 }
